@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Portal Siswa SMK Negeri 7 Samarinda | Masuk</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="https://siswa.smkn7-smr.sch.id/assets/dist/css/adminlte.min.css">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="#"><b>Portal Guru</b> <br> SMK Negeri 7 Samarinda</a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Silakan masuk menggunakan akun anda</p>
+      <div id="danger" class="card bg-danger text-white p-3 d-none">
+        <div class="row">
+          <div class="col-10">Login gagal!, username dan password salah!</div>
+          <a class="col-1 text-white"><button class="btn display-6 text-white bi bi-x-lg" onclick="document.getElementById('danger').setAttribute('class', 'card bg-danger text-white p-3 d-none')"></button></a>
+        </div>
+      </div>
+        <div class="input-group mb-3">
+          <input type="text" id="username" class="form-control" placeholder="Username" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" id="password" class="form-control" placeholder="Password" required>
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-4">
+            <button class="btn btn-primary btn-block" onclick="login();">Masuk</button>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://siswa.smkn7-smr.sch.id/assets/plugins/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+<script src="js/encrypt.js"></script>
+<script src="js/cookie.js"></script>
+<script type="text/javascript">
+    initialize();
+
+    async function initialize() {
+        let json_session = JSON.stringify({session_id: getCookie("session_id")});
+        let result = await fetch("https://testing.basis64computer.workers.dev", { 
+          method: 'POST',
+          headers: {"type": "CHECK_SESSION"},
+          body: json_session
+        });
+        let resultjson = await result.json();
+        console.log(resultjson);
+
+        if (getCookie("session_id") && getCookie("key") && resultjson.ok) {
+            return;
+        }
+
+        let response = await fetch("https://testing.basis64computer.workers.dev", { 
+          method: 'GET',
+          headers: {"type": "REQUEST"},
+          //body: {"error": false}
+        });
+        let json = await response.json();
+        let key = generateKey();
+        setCookieDays("session_id", json.session_id, 1);
+        setCookieDays("key", key, 1);
+        let cipherText = await encryptRSA2(json.public_key, key);
+
+        let json_key = JSON.stringify({session_id: json.session_id, cipher: cipherText});
+        console.log(json_key);
+
+        let response2 = await fetch("https://testing.basis64computer.workers.dev", { 
+          method: 'POST',
+          headers: {"type": "AES"},
+          body: json_key
+        });
+        console.log(await response2.json());
+    }
+
+    async function login() {
+        let username_value = document.getElementById("username").value;
+        let password_value = document.getElementById("password").value;
+        let data = JSON.stringify({session_id: getCookie("session_id"), username: await encryptAES(getCookie("key"), username_value), password: await encryptAES(getCookie("key"), password_value), type: "teacher"});
+        console.log(data);
+
+        let response = await fetch("https://testing.basis64computer.workers.dev", { 
+          method: 'POST',
+          headers: {"type": "LOGIN"},
+          body: data
+        });
+
+        console.log(iv);
+        let json = await response.json();
+        console.log("response");
+        console.log(json);
+        if (json.ok) {
+            window.location.replace("guru.html");
+        } else {
+            document.getElementById('danger').setAttribute('class', 'card bg-danger text-white p-3');
+        }
+    }
+</script>
+
+</body>
+</html>

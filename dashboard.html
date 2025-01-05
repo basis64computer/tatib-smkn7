@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Tatib - SMKN7 Samarinda</title>
+        <link href="css/styles.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark" id="nav">
+            
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Informasi</h1>
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex d-inline justify-content-start">
+                                    <div>
+                                    <img class="img-thumbnail" style="width: 250px;" src="assets/img/user.png" alt="">
+                                    </div>
+                                    <div class="px-4 w-100">
+                                        <h3 class="card-title text-decoration-underline">Informasi Siswa</h3>
+                                        <table>
+                                            <tr>
+                                                <td>Nama</td><td>:</td><td id="userName3"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>NISN</td><td>:</td><td id="nisn"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Instansi</td><td>:</td><td>SMK Negeri 7 Samarinda</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sisa poin</td><td>:</td><td id="poin"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Status Telegram</td><td>:</td><td id="telegramID"></td>
+                                            </tr>
+                                        </table>
+                                        <div class="btn-group pt-4">
+                                            <a class="btn btn-light text-dark border border-dark" href="#history">Riwayat pemotongan poin</a>
+                                            <a class="btn btn-light text-dark border border-dark" href="#history2">Riwayat (Grafik Data)</a>
+                                        </div>
+                                        <button class="btn btn-primary mt-4" onclick="$('#telegramModal').modal('show');">Pengaturan Telegram</button>
+                                        <!--a class="btn btn-primary mt-4" href="https://t.me/smkn7tatib_bot" target="_blank">Pengaturan Telegram</a-->
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="history">
+                            <div class="card-header"><i class="bi bi-clock-history"></i> Riwayat Pemotongan Poin</div>
+                            <div class="card-body">
+                                <table id="datatablesSimple">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Poin</th>
+                                            <th>Deskripsi</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card mb-4" id="history2">
+                            <div class="card-header">
+                                <i class="fas fa-chart-area me-1"></i>
+                                Grafik Riwayat Pemotongan Poin
+                            </div>
+                            <div class="card-body"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+                            <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+                        </div>
+                    </div>
+                </main>
+                <div class="modal fade" id="telegramModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="infoModalLabel">Hubungkan ke Telegram</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-0 p-4">
+                                <p>Hubungkan ke Telegram orang tua agar mendapatkan informasi tentang pemotongan poin dan pemanggilan orang tua secara realtime. </p>
+                                <div id="otpNumber" hidden>
+                                    <p>Klik tautan ini <a href="https://t.me/smkn7tatib_bot" target="_blank">https://t.me/smkn7tatib_bot</a> atau cari smkn7tatib_bot di Telegram, lalu klik start/mulai dan masukkan kode OTP dari halaman ini. Jangan bagikan OTP kepada siapapun.</p>
+                                    <p class="h4" id="OTP"></p>
+                                    <p id="remainingTime"></p>
+                                </div>
+                                <div id="requestButton">
+                                    <button class="btn btn-primary" type="button" id="buttonRequestOTP" onclick="requestOTP();">Klik untuk mendapatkan OTP</button>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btnSave" class="btn btn-outline-dark" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="py-4 bg-light mt-auto" id="footer">
+                    
+                </footer>
+            </div>
+        </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/scripts.js"></script>
+        <script src="js/encrypt.js"></script>
+        <script src="js/cookie.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="assets/demo/chart-area-demo.js"></script>
+        <script type="text/javascript">
+            const datatablesSimple = document.getElementById('datatablesSimple');
+            let intervalId;
+            let remainingTime;
+
+            async function requestOTP() {
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "OTP"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), ciphertext: await encryptAES(getCookie("key"), JSON.stringify({nisn: nisn.toString()}))})
+                });
+                let json = await response.json();
+                console.log(await decryptAES(getCookie("key"), json.ciphertext));
+                let otp = JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+                console.log("otp: " + otp);
+                console.log(json);
+                if (json.ok) {
+                    remainingTime = otp.expired - json.timestamp;
+                    document.getElementById('otpNumber').hidden = false;
+                    document.getElementById('OTP').innerHTML = otp.code;
+                    document.getElementById('remainingTime').innerHTML = "Tunggu " + Math.floor(((otp.expired - json.timestamp) / 60000)) + " menit " + Math.floor(((otp.expired - json.timestamp) / 1000) % 60) + " detik untuk mendapatkan kembali OTP.";
+                    document.getElementById('buttonRequestOTP').disabled = true;
+                    intervalId = window.setInterval(function(){
+                        document.getElementById('remainingTime').innerHTML = "Tunggu " + Math.floor(((remainingTime) / 60000)) + " menit " + Math.floor(((remainingTime) / 1000) % 60) + " detik untuk mendapatkan kembali OTP.";
+                        remainingTime -= 1000;
+                        if (remainingTime <= 0) {
+                            document.getElementById('buttonRequestOTP').disabled = false;
+                            document.getElementById('remainingTime').innerHTML = "";
+                            clearInterval(intervalId);
+                        }
+                    }, 1000);
+                    //info("Berhasil mengirim informasi pemanggilan orang tua.");
+                } else {
+                    //info("Tidak dapat mengirim informasi pemanggilan orang tua.");
+                }
+            }
+
+            function addTable(no, point, description, timestamp) {
+                let tr = document.createElement("tr");
+                let td_no = document.createElement("td");
+                let td_point = document.createElement("td");
+                let td_description = document.createElement("td");
+                let td_date = document.createElement("td");
+
+                td_no.innerHTML = no;
+                td_point.innerHTML = point;
+                td_description.innerHTML = description;
+                td_date.innerHTML = timestamp;
+
+                tr.appendChild(td_no);
+                tr.appendChild(td_point);
+                tr.appendChild(td_description);
+                tr.appendChild(td_date);
+
+                tableBody.appendChild(tr);
+            }
+            async function initialize(data) {
+                
+                const nisn = document.getElementById('nisn');
+                const poin = document.getElementById('poin');
+                const telegramID = document.getElementById('telegramID');
+                if (data) {
+                    nisn.innerHTML = data.nisn;
+                    poin.innerHTML = data.poin;
+                    telegramID.innerHTML = data.telegram_id;
+                    const date = [];
+                    const score = [];
+                    for (var i = 0; i < data.history.length; i++) {
+                        if (data.history[i].kurang) {
+                            addTable(i+1, '<p class="text-danger">-' + data.history[i].kurang + '</p>', data.history[i].description, formatDate(new Date(data.history[i].timestamp), "dd MMMM yyyy"));
+                        } else {
+                            addTable(i+1, '<p class="text-success">+' + data.history[i].tambah + '</p>', data.history[i].description, formatDate(new Date(data.history[i].timestamp), "dd MMMM yyyy"));
+                        }
+                        date.push(formatDate(new Date(data.history[i].timestamp), "dd MMMM yyyy"));
+                        score.push(data.history[i].sisa);
+                    }
+                    initializeData(date, score, data.poin);
+                    if (datatablesSimple) {
+                        new simpleDatatables.DataTable(datatablesSimple);
+                    }
+                } else {
+                    window.location.replace("login.html");
+                }
+            }
+        </script>
+    </body>
+</html>

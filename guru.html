@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Tatib - SMKN7 Samarinda</title>
+        <link href="css/styles.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="index.html">Tatib - SMKN7</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+            <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                <a class="navbar-brand text-light" id="userName"></a>
+            </form>
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#!">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Halaman</div>
+                            <a class="nav-link" href="guru.html">
+                                <div class="sb-nav-link-icon"><i class="bi bi-person-badge"></i></div>
+                                Dashboard
+                            </a>
+                            <a class="nav-link" href="scoreboard.html">
+                                <div class="sb-nav-link-icon"><i class="bi bi-list-task"></i></div>
+                                Scoreboard
+                            </a>
+                            <a class="nav-link" href="logout.html">
+                                <div class="sb-nav-link-icon"><i class="bi bi-box-arrow-left"></i></div>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Login Sebagai:</div>
+                        <div id="userName2"></div>
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                Hello
+                            </div>
+                            <div class="card-body" id="text">
+                                
+                            </div>
+                            <a class="btn btn-light btn-outline-dark m-4" href="https://t.me/tatibsmkn7samarinda">Buka Telegram Tatib SMKN7</a>
+                        </div>
+                    </div>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-secondary fw-bold">Hak Cipta &copy; <a class="text-primary text-decoration-none" href="https://basis64computer.github.io/basis64-website">BASIS-64 (Gabriel Ado Ramos Tukan)</a></div>
+                            <div class="text-muted">SMK Negeri 7 Samarinda</div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <div id="telegramModal" class="modal fade" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Ganti ID Telegram</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>ID Telegram digunakan untuk memberikan notifikasi kepada orang tua jika dilakukan pemotongan poin.</p>
+                <div class="form-floating mb-3">
+                            <input class="form-control" id="inputTelegramID" type="text" placeholder="Name" data-sb-validations="required" required/>
+                            <label for="inputTelegramID">User ID</label>
+                            <div class="invalid-feedback" data-sb-feedback="inputTelegramID:required">Harus diisi.</div>
+                        </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light text-dark border border-dark" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary">Simpan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/scripts.js"></script>
+        <script src="js/encrypt.js"></script>
+        <script src="js/cookie.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script src="assets/demo/chart-area-demo.js"></script>
+        <script type="text/javascript">
+            initialize();
+            const name = document.getElementById('userName');
+            const name2 = document.getElementById('userName2');
+            const name3 = document.getElementById('text');
+            async function initialize() {
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "GETDATA"},
+                  body: JSON.stringify({session_id: getCookie("session_id")})
+                });
+                let json = await response.json();
+                console.log(json);
+                if (json.ok) {
+                    let data = JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+                    if (data.type != "teacher") {
+                        window.location.replace("login.html");
+                    }
+
+                    name.innerHTML = data.name;
+                    name2.innerHTML = data.name;
+                    name3.innerHTML = " Selamat datang, " + data.name;
+                } else {
+                    window.location.replace("login.html");
+                }
+            }
+        </script>
+    </body>
+</html>

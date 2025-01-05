@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      
+    </head>
+    <body>
+      <script type="text/javascript" src="js/cookie.js"></script>
+      <script type="text/javascript">
+      fetch("https://testing.basis64computer.workers.dev", { 
+          method: 'POST',
+          headers: {"type": "LOGOUT"},
+          body: JSON.stringify({session_id: getCookie("session_id")})
+        }).then(response => {
+          setCookie("session_id", 0);
+          window.location.replace("login.html");
+        })
+    </script>
+    </body>
+</html>

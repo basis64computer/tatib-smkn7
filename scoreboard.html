@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Tatib - SMKN7 Samarinda</title>
+        <link href="css/styles.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark" id="nav">
+            
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Scoreboard</h1>
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fa-solid fa-crown"></i> Scoreboard</div>
+                            <div class="card-body">
+                                <table id="datatablesSimple">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama</th>
+                                            <th>Kelas</th>
+                                            <th>Poin</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody">
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <div class="modal fade" id="potongPoinModal" tabindex="-1" aria-labelledby="potongPoinModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="potongPoinModalLabel">Potong Poin</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-0 p-4">
+                                <p>Anda dapat memotong poin siswa jika terdapat pelanggaran, Anda juga daapt menambahkan alasan pemotongan poin di kolom deskripsi.</p>
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="inputNumber" type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Name" data-sb-validations="required" required/>
+                                    <label for="inputNumber">Poin yang dipotong</label>
+                                    <div class="invalid-feedback" data-sb-feedback="inputNumber:required">Harus diisi.</div>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="inputDescription" rows="3"></textarea>
+                                    <label for="inputDescription">Deskripsi</label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <!-- Submit Button-->
+                                <div class="d-grid"><button id="btnSave" class="btn btn-primary btn-lg" onclick="console.log(document.getElementById('inputNumber').value); potongPoin(dataSiswa[selected].nisn, document.getElementById('inputNumber').value, document.getElementById('inputDescription').value);" data-bs-dismiss="modal">Konfirmasi</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="tambahPoinModal" tabindex="-1" aria-labelledby="tambahPoinModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="tambahPoinModalLabel">Tambah Poin</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-0 p-4">
+                                <p>Anda dapat menambahkan poin siswa di sini, Anda juga daapt menambahkan alasan penambahan poin di kolom deskripsi.</p>
+                                <div class="form-floating mb-3">
+                                    <input class="form-control" id="inputNumber2" type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '');" placeholder="Name" data-sb-validations="required" required/>
+                                    <label for="inputNumber2">Poin yang ditambahkan</label>
+                                    <div class="invalid-feedback" data-sb-feedback="inputNumber2:required">Harus diisi.</div>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="inputDescription2" rows="3"></textarea>
+                                    <label for="inputDescription2">Deskripsi</label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <!-- Submit Button-->
+                                <div class="d-grid"><button id="btnSave" class="btn btn-primary btn-lg" onclick="console.log(dataSiswa[selected].nisn); tambahPoin(dataSiswa[selected].nisn, document.getElementById('inputNumber2').value, document.getElementById('inputDescription2').value);" data-bs-dismiss="modal">Konfirmasi</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="pemanggilanModal" tabindex="-1" aria-labelledby="pemanggilanModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="pemanggilanModalLabel">Tambah Poin</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-0 p-4">
+                                <p>Deskripsi harus diisi untuk mengirim informasi pemanggilan orang tua di channel Telegram Tatib SMKN7 Samarinda.</p>
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="inputDescription3" rows="3"></textarea>
+                                    <label for="inputDescription2">Deskripsi</label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <!-- Submit Button-->
+                                <div class="d-grid"><button id="btnSave" class="btn btn-primary btn-lg" onclick="pemanggilan(selected, document.getElementById('inputDescription3').value);" data-bs-dismiss="modal">Kirim</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="infoModalLabel">Info</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-0 p-4">
+                                <p id="info"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btnSave" class="btn btn-outline-dark" data-bs-dismiss="modal" onclick="window.location.reload();">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light p-4">
+                                <h5 class="modal-title font-alt" id="infoModalLabel">Info</h5>
+                                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body border-1 p-4">
+                                <ul class="nav nav-tabs">
+                                  <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" id="buttonTab1" onclick="selectTab1();">Info Siswa</a>
+                                  </li>
+                                  <li class="nav-item">
+                                    <a class="nav-link" id="buttonTab2" onclick="selectTab2();">Pelanggaran</a>
+                                  </li>
+                                </ul>
+                                <div class="border border-top-0 p-3" id="tab1">
+                                    <table class="text-secondary p-3">
+                                        <tr>
+                                            <td>Nama</td>
+                                            <td>:</td>
+                                            <td id="namaSiswa"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Kelas</td>
+                                            <td>:</td>
+                                            <td id="kelasSiswa"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nomor absen</td>
+                                            <td>:</td>
+                                            <td id="absenSiswa"></td>
+                                        </tr>
+                                    </table>
+                                    <div class="d-flex-inline m-2">
+                                        <button class="btn btn-sm btn-outline-dark me-2" onclick="$('#userModal').modal('hide'); $('#potongPoinModal').modal('show');">Potong poin</button>
+                                        <button class="btn btn-sm btn-outline-dark me-2" onclick="$('#userModal').modal('hide'); $('#tambahPoinModal').modal('show');">Penambahan poin</button>
+                                        <button class="btn btn-sm btn-outline-dark me-2" onclick="$('#userModal').modal('hide'); $('#pemanggilanModal').modal('show');">Pemanggilan orang tua</button>
+                                    </div>
+                                </div>
+                                <div class="border border-top-0 p-3" id="tab2" hidden>
+                                    <table id="pelanggaranTable">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Poin</th>
+                                                <th>Pelanggaran</th>
+                                                <th>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pelanggaranTableBody">
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="btnSave" class="btn btn-outline-dark" data-bs-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="py-4 bg-light mt-auto" id="footer">
+                    
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/scripts.js"></script>
+        <script src="js/encrypt.js"></script>
+        <script src="js/cookie.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+
+        <script type="text/javascript">
+            let tableBody = document.getElementById('tableBody');
+            let selected = 0;
+            let dataSiswa;
+
+            function selectTab1() {
+                document.getElementById('buttonTab1').setAttribute("class", "nav-link active");
+                document.getElementById('buttonTab2').setAttribute("class", "nav-link");
+                document.getElementById('tab1').hidden = false;
+                document.getElementById('tab2').hidden = true;
+            }
+
+            function selectTab2() {
+                document.getElementById('buttonTab1').setAttribute("class", "nav-link");
+                document.getElementById('buttonTab2').setAttribute("class", "nav-link active");
+                document.getElementById('tab1').hidden = true;
+                document.getElementById('tab2').hidden = false;
+            }
+
+            function info(text) {
+                document.getElementById("info").innerHTML = text;
+                $("#infoModal").modal("show");
+            }
+
+            async function pemanggilan(nisn, description) {
+                if (!description) {
+                    info("Harus diisi.");
+                    return;
+                }
+                console.log("nisn: " + nisn);
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "PEMANGGILAN"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), ciphertext: await encryptAES(getCookie("key"), JSON.stringify({nisn: nisn.toString(), description: description}))})
+                });
+                let json = await response.json();
+                console.log(json);
+                if (json.ok) {
+                    info("Berhasil mengirim informasi pemanggilan orang tua.");
+                } else {
+                    info("Tidak dapat mengirim informasi pemanggilan orang tua.");
+                }
+            }
+
+            async function potongPoin(nisn, poin, description) {
+                if (!poin) {
+                    info("Harus diisi.");
+                    return;
+                }
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "POTONGPOIN"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), ciphertext: await encryptAES(getCookie("key"), JSON.stringify({nisn: nisn, potongpoin: poin, description: description}))})
+                });
+                let json = await response.json();
+                console.log(json);
+                if (json.ok) {
+                    info("Berhasil memotong poin.");
+                } else {
+                    info("Tidak dapat memotong poin.");
+                }
+            }
+
+            async function tambahPoin(nisn, poin, description) {
+                if (!poin) {
+                    info("Harus diisi.");
+                    return;
+                }
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "TAMBAHPOIN"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), ciphertext: await encryptAES(getCookie("key"), JSON.stringify({nisn: nisn, tambahpoin: poin, description: description}))})
+                });
+                let json = await response.json();
+                console.log("poin: " + poin);
+                console.log(json);
+                if (json.ok) {
+                    info("Berhasil menambahkan poin.");
+                } else {
+                    info("Tidak dapat menambahkan poin.");
+                }
+            }
+
+            function initializeSiswa(num) {
+                document.getElementById('namaSiswa').innerHTML = dataSiswa[num].name;
+                document.getElementById('kelasSiswa').innerHTML = classes[dataSiswa[num].kelas];
+                document.getElementById('absenSiswa').innerHTML = dataSiswa[num].absen;
+
+                loadPelanggaran();
+            }
+
+            function addTable(no, name, className, point, nisn, type, button) {
+                let tr = document.createElement("tr");
+                let td_no = document.createElement("td");
+                let td_name = document.createElement("td");
+                let td_class = document.createElement("td");
+                let td_point = document.createElement("td");
+                let td_button = document.createElement("td");
+                let div = document.createElement("div");
+                div.setAttribute("class", "");
+                                console.log("nisn: " + typeof nisn);
+
+
+
+                let button01 = document.createElement("button");
+                button01.setAttribute("class", "btn btn-sm btn-outline-dark me-2");
+                console.log(nisn);
+                button01.setAttribute("onclick", "selected = " + (no-1) + "; initializeSiswa(" + (no-1) + "); $('#userModal').modal('show');");
+                button01.innerHTML = "Lihat";
+                /*let button01 = document.createElement("button");
+                button01.setAttribute("class", "btn btn-sm btn-outline-dark me-2");
+                console.log(nisn);
+                button01.setAttribute("onclick", "selected = '" + nisn + "'; $('#potongPoinModal').modal('show');");
+                button01.innerHTML = "Potong poin";
+
+                let button02 = document.createElement("button");
+                button02.setAttribute("class", "btn btn-sm btn-outline-dark me-2");
+                button02.setAttribute("onclick", "selected = '" + nisn + "'; $('#tambahPoinModal').modal('show');");
+                button02.innerHTML = "Tambah poin";
+
+
+                let button03 = document.createElement("button");
+                button03.setAttribute("class", "btn btn-sm btn-danger");
+                button03.setAttribute("onclick", "selected = '" + nisn + "'; $('#pemanggilanModal').modal('show');");
+                button03.innerHTML = "Pemanggilan Orang Tua";*/
+
+                td_no.innerHTML = no;
+                td_name.innerHTML = name;
+                td_class.innerHTML = className;
+                td_point.innerHTML = point;
+                if (nisn) {
+                    div.appendChild(button01);
+                    //td_button.appendChild(document.createElement("br"));
+                    //div.appendChild(button02);
+                    //div.appendChild(button03);
+                    td_button.appendChild(div);
+                }
+
+                tr.appendChild(td_no);
+                tr.appendChild(td_name);
+                tr.appendChild(td_class);
+                tr.appendChild(td_point);
+                tr.appendChild(td_button);
+
+                tableBody.appendChild(tr);
+            }
+
+            function addTablePelanggaran(no, point, description, timestamp, tableBody) {
+                let tr = document.createElement("tr");
+                let td_no = document.createElement("td");
+                let td_point = document.createElement("td");
+                let td_description = document.createElement("td");
+                let td_date = document.createElement("td");
+
+                td_no.innerHTML = no;
+                td_point.innerHTML = point;
+                td_description.innerHTML = description;
+                td_date.innerHTML = timestamp;
+
+                tr.appendChild(td_no);
+                tr.appendChild(td_point);
+                tr.appendChild(td_description);
+                tr.appendChild(td_date);
+
+                tableBody.appendChild(tr);
+            }
+
+            async function getSiswa(nisn) {
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "GETSISWA"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), nisn: nisn})
+                });
+                let json = await response.json();
+                return JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+            }
+
+            async function loadPelanggaran() {
+                let tablePelanggaran = document.getElementById('pelanggaranTable');
+                tablePelanggaran.innerHTML = `<thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Poin</th>
+                                                <th>Pelanggaran</th>
+                                                <th>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pelanggaranTableBody">
+                                            
+                                        </tbody>`;
+                let tablePelanggaranBody = document.getElementById('pelanggaranTableBody');
+                let data = dataSiswa[selected];
+                let siswa = await getSiswa(dataSiswa[selected].nisn);
+                console.log(siswa);
+                let history = siswa.history;
+                if (data) {
+                    //nisn.innerHTML = data.nisn;
+                    //poin.innerHTML = data.poin;
+                    //telegramID.innerHTML = data.telegram_id;
+                    const date = [];
+                    const score = [];
+                    for (var i = 0; i < history.length; i++) {
+                        if (history[i].kurang) {
+                            addTablePelanggaran(i+1, '<p class="text-danger">-' + history[i].kurang + '</p>', history[i].description, formatDate(new Date(history[i].timestamp), "dd MMMM yyyy"), tablePelanggaranBody);
+                        } else {
+                            addTablePelanggaran(i+1, '<p class="text-success">+' + history[i].tambah + '</p>', history[i].description, formatDate(new Date(history[i].timestamp), "dd MMMM yyyy"), tablePelanggaranBody);
+                        }
+                        date.push(formatDate(new Date(history[i].timestamp), "dd MMMM yyyy"));
+                        score.push(history[i].sisa);
+                    }
+                    if (tablePelanggaran) {
+                        new simpleDatatables.DataTable(tablePelanggaran);
+                    }
+                }
+            }
+
+            async function initialize(data) {
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "SCOREBOARD"},
+                  body: JSON.stringify({session_id: getCookie("session_id")})
+                });
+                let json = await response.json();
+                console.log(json);
+                if (data) {
+                    let scoreboard = JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+                    dataSiswa = scoreboard.scoreboard;
+                    console.log(scoreboard);
+                    for (var i = 0; i < scoreboard.scoreboard.length; i++) {
+                        addTable(i+1, scoreboard.scoreboard[i].name, classes[scoreboard.scoreboard[i].kelas], scoreboard.scoreboard[i].score, scoreboard.scoreboard[i].nisn, null);
+                    }
+                    const datatablesSimple = document.getElementById('datatablesSimple');
+                    if (datatablesSimple) {
+                        new simpleDatatables.DataTable(datatablesSimple);
+                    }
+                } else {
+                    window.location.replace("login.html");
+                }
+            }
+            
+        </script>
+    </body>
+</html>
