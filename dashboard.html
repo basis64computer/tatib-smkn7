@@ -189,7 +189,7 @@
                 if (data) {
                     nisn.innerHTML = data.nisn;
                     poin.innerHTML = data.poin;
-                    telegramID.innerHTML = data.telegram_id;
+                    telegramID.innerHTML = (data.telegram)?"Akun Telegram sudah terhubung.":"Akun Telegram belum terhubung.";
                     const date = [];
                     const score = [];
                     for (var i = 0; i < data.history.length; i++) {
