@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PDF Invoice</title>
+</head>
+<body>
+    <button id="generate-invoice">Generate Invoice PDF</button>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const { jsPDF } = new jspdf.jsPDF();
+
+            document.getElementById('generate-invoice').addEventListener('click', function() {
+                const doc = new jspdf.jsPDF();
+
+                // Invoice Header
+                let positionY = 30;
+                doc.setFontSize(20);
+                doc.text("RIWAWAT PEMOTONGAN POIN", doc.internal.pageSize.getWidth()/2-50, positionY);
+
+                doc.setFontSize(12);
+                doc.text("Nama", 20, positionY+15);
+                doc.text(":", 35, positionY+15);
+                doc.text("Naufal Raissa Almaydy", 50, positionY+15);
+
+                doc.text("Kelas", 20, positionY+20);
+                doc.text(":", 35, positionY+20);
+                doc.text("XI TJKT 1", 50, positionY+20);
+                // Invoice Table
+                doc.autoTable({
+                    startY: 60,
+                    styles : { halign : 'center'}, 
+                    headStyles :{fillColor : [255, 255, 255], textColor: [0, 0, 0]},
+                    alternateRowStyles: {fillColor : [255, 255, 255]},
+                    didParseCell: function (data) {
+                        if(data.section === 'body' && data.cell.raw < 0){
+                            data.cell.styles.textColor = "red";
+                        } else if(data.section === 'Poin' && data.cell.raw >= 0) {
+                            data.cell.styles.textColor = "green";
+                        }
+                    },
+                    tableLineColor: [0, 0, 0],
+                    tableLineWidth: 0.1,
+                    theme: 'grid',
+                    head: [['No', 'poin', 'Pelanggaran', 'Tanggal']],
+                    body: [
+                        ["1", -15, 'Main Mobile Legends di kelas sambil toxic atau berkata kasar karena lose streak 10 kali', '11 September 2024'],
+                        ["1", -15, 'Main Mobile Legends di kelas sambil toxic atau berkata kasar karena lose streak 10 kali', '11 September 2024']
+                    ],
+                });
+
+                // Invoice Total
+                let finalY = doc.previousAutoTable.finalY + 50; // The y position after the table
+                doc.setFontSize(12);
+                doc.text('Samarinda, 11 September 2025', 120, finalY + 5);
+                doc.text('Wali kelas,', 120, finalY + 10);
+                doc.text('Abdul Haris, S.Pd', 120, finalY + 40)
+                //const textWidth = doc.getTextWidth();
+                //doc.line(x, y, x + textWidth, finalY + 45);
+                
+
+                // Footer
+                doc.setFontSize(10);
+                //doc.text('Thank you for your business!', 20, 280);
+                doc.text('Tatib SMK Negeri 7 Samarinda', 20, 285);
+
+                // Save the PDF
+                doc.save('invoice.pdf');
+            });
+        });
+    </script>
+</body>
+</html>
+
+

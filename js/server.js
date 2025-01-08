@@ -69,22 +69,6 @@ async function exportKeyToPEM(key) {
   return pemString;
 }
 
-function arrayBufferToBase64(buffer) {
-  const binary = String.fromCharCode(...new Uint8Array(buffer));
-  return btoa(binary);
-}
-
-// Helper function to convert Base64 to ArrayBuffer
-function base64ToArrayBuffer(base64) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 function str2ab(str) {
   const buf = new ArrayBuffer(str.length);
   const bufView = new Uint8Array(buf);
@@ -156,7 +140,7 @@ const keyCharset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567
 
 async function importAESKey(rawKey) {
   // Convert raw key (Base64, hex, etc.) to ArrayBuffer
-  const keyBuffer = base64ToArrayBuffer(rawKey); // Assuming it's in Base64 format
+  const keyBuffer = str2ab(rawKey); // Assuming it's in Base64 format
 
   // Import the key as a CryptoKey object
   return await crypto.subtle.importKey(
@@ -197,6 +181,23 @@ async function decrypt(key, ciphertext) {
 
   return new TextDecoder().decode(decrypted);
 }
+
+function arrayBufferToBase64(buffer) {
+  const binary = String.fromCharCode(...new Uint8Array(buffer));
+  return btoa(binary);
+}
+
+// Helper function to convert Base64 to ArrayBuffer
+function base64ToArrayBuffer(base64) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
 
 let queue = {};
 let clients = {};
@@ -252,15 +253,62 @@ async function handleRequest(request, env) {
     clients = JSON.parse(await env.session.get("session"));;
     if (request.headers.get("type") == "SCOREBOARD") {
       let body = await request.json();
-      if (clients[body.session_id]) {
-        jsonResponse = {ok: true, ciphertext: await encrypt(clients[body.session_id].key, JSON.stringify(getScoreBoard(body.session_id)))};
+      if (clients[body.session_id] && clients[body.session_id].username) {
+        jsonResponse = {ok: true, ciphertext: await encrypt(clients[body.session_id].key, JSON.stringify(await getScoreBoard(body.session_id, env)))};
       } else {
         jsonResponse = {ok: false, error: "invalid session id"}
       }
     } else if (request.headers.get("type") == "GETDATA") {
       let body = await request.json();
-      if (clients[body.session_id]) {
-        jsonResponse = {ok: true, ciphertext: await encrypt(clients[body.session_id].key, JSON.stringify(getData(body.session_id)))};
+      if (clients[body.session_id] && clients[body.session_id].username) {
+        jsonResponse = {ok: true, ciphertext: await encrypt(clients[body.session_id].key, JSON.stringify(await getData(body.session_id, env)))};
+      } else {
+        jsonResponse = {ok: false, error: "invalid session id"}
+      }
+    } else if (request.headers.get("type") == "GETSISWA") {
+      let body = await request.json();
+      const client = clients[body.session_id];
+      if (client.type != "teacher") {
+        return new Response(JSON.stringify({error: "invalid request"}), {
+          headers: corsHeaders,
+        });
+      }
+      if (clients[body.session_id] && clients[body.session_id].username) {
+        let siswa = await env.siswaDatabase.get(body.nisn);
+        jsonResponse = {ok: true, ciphertext: await encrypt(clients[body.session_id].key, siswa)};
+      } else {
+        jsonResponse = {ok: false, error: "invalid session id"}
+      }
+    } else if (request.headers.get("type") == "OTP") {
+      let body = await request.json();
+      const client = clients[body.session_id];
+      if (client.type != "student") {
+        return new Response(JSON.stringify({error: "invalid request"}), {
+          headers: corsHeaders,
+        });
+      }
+      if (clients[body.session_id] && clients[body.session_id].username) {
+        let OTPQueue = JSON.parse(await env.session.get("otp_queue"));
+        let now = new Date().getTime();
+
+        if (!OTPQueue[client.username]) {
+          OTPQueue[client.username] = {};
+        }
+
+        if (OTPQueue[client.username].expired <= now || !OTPQueue[client.username].expired) {
+          OTPQueue[client.username].code = generateRandomString(6, "0123456789");
+          OTPQueue[client.username].expired = now + 5*60*1000;
+        }
+        
+        /*if(siswa.otp.expired) {
+          
+        } else {
+          siswa.otp.code = generateRandomString(6, "0123456789");
+          siswa.otp.expired = new Date().getTime() + 0;
+        }*/
+
+        await env.session.put("otp_queue", JSON.stringify(OTPQueue));
+        jsonResponse = {ok: true, timestamp: now, ciphertext: await encrypt(clients[body.session_id].key, JSON.stringify(OTPQueue[client.username]))};
       } else {
         jsonResponse = {ok: false, error: "invalid session id"}
       }
@@ -268,7 +316,7 @@ async function handleRequest(request, env) {
       let body = await request.json();
       delete clients[body.session_id];
       await env.session.put("session", JSON.stringify(clients));
-      saveSession();
+      //saveSession();
       jsonResponse = JSON.stringify({ok: true, message: "Logged out"});
     }else if(request.headers.get("type") == "PEMANGGILAN") {
       let ciphertext = await request.json();
@@ -280,70 +328,90 @@ async function handleRequest(request, env) {
       }
       let json = JSON.parse(await decrypt(clients[ciphertext.session_id].key, ciphertext.ciphertext));
       const result = database.find(item => item.username === json.nisn);
-      sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan pemanggilan orang tua dan diharapkan untuk segera datang ke sekolah." + "\nSisa poin: " + result.score + "\nDeskripsi: " + json.description)
+      sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan pemanggilan orang tua dan diharapkan untuk segera datang ke sekolah." + "\nSisa poin: " + result.poin + "\nDeskripsi: " + json.description)
       return new Response(JSON.stringify({ok: true, message: "pemanggilan"}), {headers: corsHeaders,});
     } else if (request.headers.get("type") == "POTONGPOIN") {
       let ciphertext = await request.json();
-      const client = database.find(item => item.username === clients[ciphertext.session_id].username);
+      const client = clients[ciphertext.session_id];
       if (client.type != "teacher") {
         return new Response(JSON.stringify({error: "invalid request"}), {
           headers: corsHeaders,
         });
       }
       let json = JSON.parse(await decrypt(clients[ciphertext.session_id].key, ciphertext.ciphertext));
-      const result = database.find(item => item.username === json.nisn);
-      //return new Response(JSON.stringify({database: database, data: json}), {headers: corsHeaders,});
+      const result = JSON.parse(await env.siswaDatabase.get(json.nisn));
       if (!result.history) {
         result.history = [];
       }
 
-      let telegramResponse = await sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan pemotongan poin karena melakukan pelanggaran.\nPoin sebelum dipotong : " + result.score + "\nSisa poin: " + (result.score - json.potongpoin) + "\nPemotongan poin: -" + json.potongpoin + "\nDeskripsi: " + json.description)
+      //return new Response(JSON.stringify({data: json}), {headers: corsHeaders,});
 
-      if (result.score - json.potongpoin <= 0) {
-        result.score = 0;
-      } else {
-        result.score -= json.potongpoin;
+
+      try {
+        await sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan pemotongan poin karena melakukan pelanggaran.\nPoin sebelum dipotong : " + result.poin + "\nSisa poin: " + (result.poin - json.potongpoin) + "\nPemotongan poin: -" + json.potongpoin + "\nDeskripsi: " + json.description, result.telegram);
+      } catch (error) {
+        
       }
-      
-      result.history.push({sisa: result.score, kurang: json.potongpoin, description: json.description, timestamp: new Date().getTime()});
+
+      if (result.poin - json.potongpoin <= 0) {
+        result.poin = 0;
+      } else {
+        result.poin -= json.potongpoin;
+      }
+
+      let cachedScoreboard = JSON.parse(await env.configuration.get("cached-scoreboard"));
+      cachedScoreboard[json.nisn] = {name: result.name, kelas: result.kelas, poin: result.poin, nisn: json.nisn, absen: result.absen};
+      await env.configuration.put("cached-scoreboard", JSON.stringify(cachedScoreboard))
+
+      result.history.push({sisa: result.poin, kurang: json.potongpoin, description: json.description, timestamp: new Date().getTime()});
+      await env.siswaDatabase.put(json.nisn, JSON.stringify(result));
       return new Response(JSON.stringify({ok: true, message: "potong poin"}), {headers: corsHeaders,});
 
     } else if (request.headers.get("type") == "TAMBAHPOIN") {
+      
       let ciphertext = await request.json();
-      const client = database.find(item => item.username === clients[ciphertext.session_id].username);
+      const client = clients[ciphertext.session_id];
       if (client.type != "teacher") {
         return new Response(JSON.stringify({error: "invalid request"}), {
           headers: corsHeaders,
         });
       }
+      
       let json = JSON.parse(await decrypt(clients[ciphertext.session_id].key, ciphertext.ciphertext));
-      const result = database.find(item => item.username === json.nisn);
-      //return new Response(JSON.stringify({database: database, data: json}), {headers: corsHeaders,});
+      const result = JSON.parse(await env.siswaDatabase.get(json.nisn));
       if (!result.history) {
         result.history = [];
       }
 
-      // @ts-ignore
-      let sisa_poin;
-      // @ts-ignore
-      if ((parseInt(result.score) + parseInt(json.potongpoin)) >= 100) {
-        sisa_poin = 100;
-      } else {
+      try {
         // @ts-ignore
-        sisa_poin = (parseInt(result.score) + parseInt(json.potongpoin));
-      }
-      let telegramResponse = await sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan penambahan poin.\nPoin sebelum ditambahkan : " + result.score + "\nSisa poin: " + sisa_poin + "\nPenambahan poin: +" + json.potongpoin + "\nDeskripsi: " + json.description);
-      
-      // @ts-ignore
-      if ((parseInt(result.score) + parseInt(json.potongpoin)) >= 100) {
-        result.score = 100;
-      } else {
+        let sisa_poin;
         // @ts-ignore
-        result.score = (parseInt(result.score) + parseInt(json.potongpoin));
+        if ((parseInt(result.poin) + parseInt(json.tambahpoin)) >= 100) {
+          sisa_poin = 100;
+        } else {
+          // @ts-ignore
+          sisa_poin = (parseInt(result.poin) + parseInt(json.tambahpoin));
+        }
+        await sendBroadcast("*Info Penting*\nMurid bernama " + result.name + " mendapatkan penambahan poin.\nPoin sebelum ditambahkan : " + result.poin + "\nSisa poin: " + sisa_poin + "\nPenambahan poin: +" + json.tambahpoin + "\nDeskripsi: " + json.description, result.telegram);
+      } catch (error) {
+        
+      }
+
+      // @ts-ignore
+      if ((parseInt(result.poin) + parseInt(json.tambahpoin)) >= 100) {
+        result.poin = 100;
+      } else {
+        result.poin += parseInt(json.tambahpoin);
       }
       
-      result.history.push({sisa: result.score, tambah: json.potongpoin, description: json.description, timestamp: new Date().getTime()});
-      return new Response(JSON.stringify({ok: true, message: "tambah poin", response: telegramResponse}), {headers: corsHeaders,});
+      let cachedScoreboard = JSON.parse(await env.configuration.get("cached-scoreboard"));
+      cachedScoreboard[json.nisn] = {name: result.name, kelas: result.kelas, poin: result.poin, nisn: json.nisn, absen: result.absen};
+      await env.configuration.put("cached-scoreboard", JSON.stringify(cachedScoreboard))
+      
+      result.history.push({sisa: result.poin, tambah: json.tambahpoin, description: json.description, timestamp: new Date().getTime()});
+      await env.siswaDatabase.put(json.nisn, JSON.stringify(result));
+      return new Response(JSON.stringify({ok: true, message: "tambah poin"}), {headers: corsHeaders,});
 
     } else if (request.headers.get("type") == "AES") {
       let body = await request.json();
@@ -355,7 +423,8 @@ async function handleRequest(request, env) {
       let AES_key = await decryptRSA2(queue[body.session_id].private_key, body.cipher);
       delete queue[body.session_id];
       clients[body.session_id] = {key: AES_key};
-      jsonResponse = JSON.stringify({"response": "key received"});
+      await env.session.put("session", JSON.stringify(clients));
+      jsonResponse = JSON.stringify({"response": "key received", clients: clients});
     } else if (request.headers.get("type") == "CHECK_SESSION") {
       let body = await request.json();
       if (!clients[body.session_id]) {
@@ -376,27 +445,38 @@ async function handleRequest(request, env) {
       }
 
       if (!body.username || !body.password) {
-        return new Response(JSON.stringify({error: "LOGIN_FAILED"}), {
+        return new Response(JSON.stringify({error: "LOGIN_FAILED_NO_USERNAME_OR_PASSWORD"}), {
           headers: corsHeaders,
         });
       }
 
       let decryptedUsername = await decrypt(clients[body.session_id].key, body.username);
       let decryptedPassword = await decrypt(clients[body.session_id].key, body.password);
-      let data = await env.siswaDatabase
-      const result = ;
-      if (!result) {
-        return new Response(JSON.stringify({ok: false, error: "LOGIN_FAILED"}), {
+      let data;
+      if (body.type == "teacher") {
+        data = await env.guruDatabase.get(decryptedUsername);
+      } else {
+        data = await env.siswaDatabase.get(decryptedUsername);
+      }
+      try {
+        const result = JSON.parse(data);
+        if (!result) {
+          return new Response(JSON.stringify({ok: false, error: "LOGIN_FAILED_USER_NOT_FOUND"}), {
+            headers: corsHeaders,
+          });
+        }
+        if (result.password == decryptedPassword) {
+          clients[body.session_id].username = decryptedUsername;
+          clients[body.session_id].type = body.type;
+          await env.session.put("session", JSON.stringify(clients));
+          jsonResponse = {ok: true, message: "Login"};
+        } else {
+          jsonResponse = {ok: false, message: "Username atau password salah.", err: result.password};
+        }
+      } catch (err) {
+        return new Response(JSON.stringify({ok: false, error: "LOGIN_FAILED_ERROR", desc: data}), {
           headers: corsHeaders,
         });
-      }
-      if (result.username == decryptedUsername && result.password == decryptedPassword && result.type == body.type) {
-        clients[body.session_id].username = decryptedUsername;
-        clients[body.session_id].type = "student";
-        await env.session.put("session", JSON.stringify(clients));
-        jsonResponse = {ok: true, message: "Login"};
-      } else {
-        jsonResponse = {ok: false, message: "Username atau password salah."};
       }
       
     } else {
@@ -409,11 +489,13 @@ async function handleRequest(request, env) {
   }
 }
 
-async function sendBroadcast(message) {
-  let encoded = message.replaceAll("\n", "%0A");
-  let response = await fetch("https://api.telegram.org/bot7946600072:AAGqa5KBTmK1nL-xdfefh9j-nTg_KuN6J2k/sendMessage?chat_id=@tatibsmkn7samarinda&text=" + encoded + "&parse_mode=markdown");
-  let json = await response.json();
-  return json;
+async function sendBroadcast(message, telegram) {
+  for (let i = 0; i < telegram.length; i++) {
+    let encoded = message.replaceAll("\n", "%0A");
+    let response = await fetch("https://api.telegram.org/bot7825622299:AAHaZ6KjafDlNz6o5XYMuwe16q87vBLKFjI/sendMessage?chat_id=" + telegram[i] + "&text=" + encoded + "&parse_mode=markdown");
+    //let json = await response.json();
+  }
+  //return json;
 }
 
 // Sample database for the scoreboard
@@ -462,41 +544,84 @@ const database = [
   }
 ];
 
+const classes = {
+  1: "X TJKT 1",
+  2: "X TJKT 2",
+  3: "X TJKT 3",
+  4: "X PPLG 1",
+  5: "X PPLG 2",
+  6: "X DKV 1",
+  7: "X DKV 2",
+  8: "X ANIMASI",
+  9: "XI TJKT 1",
+  10: "XI TJKT 2",
+  11: "XI TJKT 3",
+  12: "XI PPLG 1",
+  13: "XI PPLG 2",
+  14: "XI DKV 1",
+  15: "XI DKV 2",
+  16: "XI ANIMASI",
+  17: "XII TJKT 1",
+  18: "XII TJKT 2",
+  19: "XII TJKT 3",
+  20: "XII PPLG 1",
+  21: "XII PPLG 2",
+  22: "XII DKV 1",
+  23: "XII DKV 2",
+  24: "XII ANIMASI"
+};
 
+async function forceUpdateScoreBoard(session_id, env) {
+  let scoreboard = {};
+  const list = await env.siswaDatabase.list();
+  for (var i = 0; i < list.keys.length; i++) {
+      let result = JSON.parse(await env.siswaDatabase.get(list.keys[i].name));
+      if(clients[session_id].type == "teacher") {
+        scoreboard[list.keys[i].name] = {name: result.name, kelas: result.kelas, poin: result.poin, nisn: list.keys[i].name, absen: result.absen};
+      }
+  }
+  await env.configuration.put("cached-scoreboard", JSON.stringify(scoreboard));
+  //await sendBroadcast(JSON.stringify(scoreboard), ["5981475588"])
+
+  return scoreboard;
+}
 
 // Function to get the sorted scoreboard
-function getScoreBoard(session_id) {
+async function getScoreBoard(session_id, env) {
   let scoreboard = {};
-  const result = database.find(item => item.username === clients[session_id].username);
+  const list = await env.configuration.get("cached-scoreboard");
+  let json;
+  if (list == "" || list == "{}") {
+    json = await forceUpdateScoreBoard(session_id, env);
+  } else {
+    json = JSON.parse(list);
+  }
+
+  let objectArray = Object.keys(json);
+
   scoreboard.ok = true;
-  scoreboard.name = result.name;
-  scoreboard.type = result.type;
   scoreboard.scoreboard = [];
-  let copy = JSON.parse(JSON.stringify(database));
-  copy.sort((a, b) => (a.score < b.score ? 1 : -1));
-  let j = 0;
-  for (var i = 0; i < copy.length; i++) {
-    if(copy[i].type != "teacher") {
-      if(result.type == "teacher") {
-        scoreboard.scoreboard.push({name: copy[i].name, class: copy[i].class, score: copy[i].score, nisn: copy[i].username});
+  //await sendBroadcast(JSON.stringify(json), ["5981475588"])
+  for (var i = 0; i < objectArray.length; i++) {
+      let data = json[objectArray[i]];
+      if(clients[session_id].type == "teacher") {
+        scoreboard.scoreboard.push({name: data.name, kelas: data.kelas, poin: data.poin, nisn: data.nisn, absen: data.absen});
       } else {
-        scoreboard.scoreboard.push({name: copy[i].name, class: copy[i].class, score: copy[i].score});
+        scoreboard.scoreboard.push({name: data.name, kelas: data.kelas, poin: data.poin});
       }
-      j++;
-    }
   }
   return scoreboard;
 }
 
-function getData(session_id) {
+async function getData(session_id, env) {
   let history = {};
-  const result = database.find(item => item.username === clients[session_id].username);
+  const result = (clients[session_id].type == "teacher")?JSON.parse(await env.guruDatabase.get(clients[session_id].username)):JSON.parse(await env.siswaDatabase.get(clients[session_id].username));
   history.ok = true;
   history.name = result.name;
-  history.nisn = result.username;
-  history.type = result.type;
-  history.poin = result.score;
-  history.telegram_id = result.telegram_id;
+  history.nisn = clients[session_id].username;
+  history.type = clients[session_id].type;
+  history.poin = result.poin;
+  history.telegram = result.telegram;
   if(result.history) {
     history.history = result.history;
   } else {

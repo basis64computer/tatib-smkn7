@@ -375,16 +375,6 @@
                 tableBody.appendChild(tr);
             }
 
-            async function getSiswa(nisn) {
-                let response = await fetch("https://testing.basis64computer.workers.dev", { 
-                  method: 'POST',
-                  headers: {"type": "GETSISWA"},
-                  body: JSON.stringify({session_id: getCookie("session_id"), nisn: nisn})
-                });
-                let json = await response.json();
-                return JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
-            }
-
             async function loadPelanggaran() {
                 let tablePelanggaran = document.getElementById('pelanggaranTable');
                 tablePelanggaran.innerHTML = `<thead>

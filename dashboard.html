@@ -21,7 +21,7 @@
             </div>
             <div id="layoutSidenav_content">
                 <main>
-                    <div class="container-fluid px-4">
+                    <div class="container-fluid px-4" id="siswaDashboard" hidden>
                         <h1 class="mt-4">Informasi</h1>
                         <div class="card mb-4">
                             <div class="card-body">
@@ -86,6 +86,118 @@
                             <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
                         </div>
                     </div>
+                    <div class="container-fluid px-4" id="guruDashboard" hidden>
+                        <div class="py-3">
+                            <div class="container my-2">
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="d-flex flex-row">
+                                            <i class="bi bi-list-ol"></i>
+                                            &nbsp;Cetak List Poin Siswa
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-lg-flex">
+                                            <div class="d-inline">
+                                                <div class="input-group mx-lg-2 mb-2">
+                                                    <select class="form-select" id="inputKelas1" onselect="" title="assets" onchange="">
+                                                        <option value="" selected>kelas</option>
+                                                        <option value="1" selected>X TJKT 1</option>
+                                                        <option value="2" selected>X TJKT 2</option>
+                                                        <option value="3" selected>X TJKT 3</option>
+                                                        <option value="4" selected>X PPLG 1</option>
+                                                        <option value="5" selected>X PPLG 2</option>
+                                                        <option value="6" selected>X DKV 1</option>
+                                                        <option value="7" selected>X DKV 2</option>
+                                                        <option value="8" selected>X ANIMASI</option>
+                                                        <option value="9" selected>XI TJKT 1</option>
+                                                        <option value="10" selected>XI TJKT 2</option>
+                                                        <option value="11" selected>XI TJKT 3</option>
+                                                        <option value="12" selected>XI PPLG 1</option>
+                                                        <option value="13" selected>XI PPLG 2</option>
+                                                        <option value="14" selected>XI DKV 1</option>
+                                                        <option value="15" selected>XI DKV 2</option>
+                                                        <option value="16" selected>XI ANIMASI</option>
+                                                        <option value="17" selected>XII TJKT 1</option>
+                                                        <option value="18" selected>XII TJKT 2</option>
+                                                        <option value="19" selected>XII TJKT 3</option>
+                                                        <option value="20" selected>XII PPLG 1</option>
+                                                        <option value="21" selected>XII PPLG 2</option>
+                                                        <option value="22" selected>XII DKV 1</option>
+                                                        <option value="23" selected>XII DKV 2</option>
+                                                        <option value="24" selected>XII ANIMASI</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="d-inline">
+                                                <div class="mx-lg-4">
+                                                    <button class="btn btn-success" onclick="printListSiswa();"><i class="bi bi-printer"></i> Cetak</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div class="d-flex flex-row">
+                                            <i class="bi bi-bar-chart"></i>
+                                            &nbsp;Cetak Laporan Pelanggaran Siswa
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-lg-flex">
+                                            <div class="d-inline">
+                                                <div class="input-group">
+                                                    <button class="btn btn-outline-dark" onclick="handlePrev();"><i class="bi bi-caret-left-fill"></i></button>
+                                                    <input type="text" class="form-control w-lg-25" id="namaSiswa" placeholder="Nama" readonly>
+                                                    <button class="btn btn-outline-dark" onclick="handleNext();"><i class="bi bi-caret-right-fill"></i></button>
+                                                </div>
+                                                <p class="my-2" id="indexSiswaText"></p>
+                                            </div>
+                                            <div class="d-inline">
+                                                <div class="input-group mx-lg-2 mb-2">
+                                                    <select class="form-select" id="inputKelas2" onselect="" title="assets" onchange="handleKelas(this.value)">
+                                                        <option value="" selected>kelas</option>
+                                                        <option value="1" selected>X TJKT 1</option>
+                                                        <option value="2" selected>X TJKT 2</option>
+                                                        <option value="3" selected>X TJKT 3</option>
+                                                        <option value="4" selected>X PPLG 1</option>
+                                                        <option value="5" selected>X PPLG 2</option>
+                                                        <option value="6" selected>X DKV 1</option>
+                                                        <option value="7" selected>X DKV 2</option>
+                                                        <option value="8" selected>X ANIMASI</option>
+                                                        <option value="9" selected>XI TJKT 1</option>
+                                                        <option value="10" selected>XI TJKT 2</option>
+                                                        <option value="11" selected>XI TJKT 3</option>
+                                                        <option value="12" selected>XI PPLG 1</option>
+                                                        <option value="13" selected>XI PPLG 2</option>
+                                                        <option value="14" selected>XI DKV 1</option>
+                                                        <option value="15" selected>XI DKV 2</option>
+                                                        <option value="16" selected>XI ANIMASI</option>
+                                                        <option value="17" selected>XII TJKT 1</option>
+                                                        <option value="18" selected>XII TJKT 2</option>
+                                                        <option value="19" selected>XII TJKT 3</option>
+                                                        <option value="20" selected>XII PPLG 1</option>
+                                                        <option value="21" selected>XII PPLG 2</option>
+                                                        <option value="22" selected>XII DKV 1</option>
+                                                        <option value="23" selected>XII DKV 2</option>
+                                                        <option value="24" selected>XII ANIMASI</option>
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="d-inline">
+                                                <div class="mx-lg-4">
+                                                    <button class="btn btn-success" onclick="printPelanggaranSiswa();"><i class="bi bi-printer"></i> Cetak</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
                 </main>
                 <div class="modal fade" id="telegramModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
@@ -117,7 +229,10 @@
             </div>
         </div>
         </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="js/document-generator.js"></script>
         <script src="js/scripts.js"></script>
         <script src="js/encrypt.js"></script>
         <script src="js/cookie.js"></script>
@@ -126,9 +241,60 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="assets/demo/chart-area-demo.js"></script>
         <script type="text/javascript">
+            const guruDashboard = document.getElementById('guruDashboard');
+            const siswaDashboard = document.getElementById('siswaDashboard');
             const datatablesSimple = document.getElementById('datatablesSimple');
+            const indexSiswaText = document.getElementById('indexSiswaText');
+            let inputKelas1 = document.getElementById('inputKelas1');
+            let inputKelas2 = document.getElementById('inputKelas2');
+            let namaSiswa = document.getElementById('namaSiswa');
             let intervalId;
             let remainingTime;
+            let listSiswa;
+            let dataSiswa;
+            let siswaIndex;
+
+            function handleKelas(value) {
+                dataSiswa = sortAndFilter(listSiswa.scoreboard, value);
+                siswaIndex = 0;
+                setSiswa(siswaIndex);
+            }
+            function setSiswa(index) {
+                namaSiswa.value = dataSiswa[index].name;
+                indexSiswaText.innerHTML = (index+1) + " dari " + dataSiswa.length;
+            }
+
+            function handlePrev() {
+                if (siswaIndex > 0) {
+                    siswaIndex--;
+                }
+                setSiswa(siswaIndex);
+            }
+
+            function handleNext() {
+                if (siswaIndex <= dataSiswa.length-2) {
+                    siswaIndex++;
+                }
+                setSiswa(siswaIndex);
+            }
+
+            function printListSiswa() {
+                let value = inputKelas1.value;
+                cetakLaporanKelas(classes[value], sortAndFilter(listSiswa.scoreboard, value));
+            }
+
+            async function printPelanggaranSiswa() {
+                let value = inputKelas2.value;
+                let siswa = dataSiswa[siswaIndex];
+                let siswaData = await getSiswa(siswa.nisn);
+                cetakLaporanSiswa(siswa.name, classes[siswa.kelas], siswa.nisn, siswa.absen.toString(), siswaData.history, "Abd");
+            }
+
+            function sortAndFilter(data, kelas) {
+                const filteredSiswa = data.filter(d => d.kelas == kelas);
+                const sortedSiswa = filteredSiswa.sort((a, b) => a.absen - b.absen);
+                return sortedSiswa;
+            }
 
             async function requestOTP() {
                 let response = await fetch("https://testing.basis64computer.workers.dev", { 
@@ -182,7 +348,18 @@
                 tableBody.appendChild(tr);
             }
             async function initialize(data) {
-                
+                indexSiswaText.innerHTML = "";
+                inputKelas1.value = "";
+                inputKelas2.value = "";
+                namaSiswa.value = "";
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "SCOREBOARD"},
+                  body: JSON.stringify({session_id: getCookie("session_id")})
+                });
+                let json = await response.json();
+                let scoreboard = JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+                listSiswa = scoreboard;
                 const nisn = document.getElementById('nisn');
                 const poin = document.getElementById('poin');
                 const telegramID = document.getElementById('telegramID');
@@ -204,6 +381,15 @@
                     initializeData(date, score, data.poin);
                     if (datatablesSimple) {
                         new simpleDatatables.DataTable(datatablesSimple);
+                    }
+
+                    if (data.type == "teacher") {
+                        guruDashboard.hidden = false;
+                        siswaDashboard.hidden = true;
+                        console.log(sortAndFilter(scoreboard.scoreboard, 9));
+                    } else {
+                        guruDashboard.hidden = true;
+                        siswaDashboard.hidden = false;
                     }
                 } else {
                     window.location.replace("login.html");

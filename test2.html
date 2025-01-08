@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate PDF Invoice</title>
+</head>
+<body>
+    <button id="generate-invoice">Generate Invoice PDF</button>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const { jsPDF } = new jspdf.jsPDF();
+
+            document.getElementById('generate-invoice').addEventListener('click', function() {
+                const doc = new jspdf.jsPDF();
+
+                // Invoice Header
+                let positionY = 30;
+                doc.setFontSize(20);
+                doc.text("POIN SISWA", doc.internal.pageSize.getWidth()/2-15, positionY);
+
+                doc.setFontSize(12);
+                //doc.text("Nama", 20, positionY+15);
+                //doc.text(":", 35, positionY+15);
+                //doc.text("Naufal Raissa Almaydy", 50, positionY+15);
+
+                doc.text("Kelas", 20, positionY+5);
+                doc.text(":", 35, positionY+5);
+                doc.text("XI TJKT 1", 50, positionY+5);
+                // Invoice Table
+                doc.autoTable({
+                    startY: 40,
+                    styles : { halign : 'center', fontSize: 10, cellPadding: 0.5}, 
+                    headStyles :{fillColor : [255, 255, 255], textColor: [0, 0, 0]},
+                    alternateRowStyles: {fillColor : [255, 255, 255]},
+                    didParseCell: function (data) {
+                        if(data.section === 'body' && data.cell.raw < 0){
+                            data.cell.styles.textColor = "red";
+                        } else if(data.section === 'Poin' && data.cell.raw >= 0) {
+                            data.cell.styles.textColor = "green";
+                        }
+                    },
+                    tableLineColor: [0, 0, 0],
+                    tableLineWidth: 0.1,
+                    theme: 'grid',
+                    head: [['No', 'NISN', 'Nama', 'Sisa Poin']],
+                    body: [
+                        ["1", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["2", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["3", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["4", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["5", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["6", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["7", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["8", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["9", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["10", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["11", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["12", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["13", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["14", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["15", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["16", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["17", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["18", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["19", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["20", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["21", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["22", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["23", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["24", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["25", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["26", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["27", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["28", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["29", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["30", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["31", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["32", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["33", "0082025001", 'Samuel Naval Altman', '95'],
+                        ["34", "0082025001", 'Samuel Naval Altman', '95'],
+
+                    ],
+                });
+
+                // Invoice Total
+                let finalY = doc.previousAutoTable.finalY + 50; // The y position after the table
+                doc.setFontSize(12);
+                //doc.text('Samarinda, 11 September 2025', 120, finalY + 5);
+                //doc.text('Wali kelas,', 120, finalY + 10);
+                //doc.text('Abdul Haris, S.Pd', 120, finalY + 40)
+                //const textWidth = doc.getTextWidth();
+                //doc.line(x, y, x + textWidth, finalY + 45);
+                
+
+                // Footer
+                doc.setFontSize(10);
+                //doc.text('Thank you for your business!', 20, 280);
+                doc.text('Tatib SMK Negeri 7 Samarinda', 20, 285);
+
+                // Save the PDF
+                doc.save('invoice.pdf');
+            });
+        });
+    </script>
+</body>
+</html>
+
+

@@ -34,6 +34,17 @@ const classes = {
   24: "XII ANIMASI"
 };
 
+async function getSiswa(nisn) {
+                let response = await fetch("https://testing.basis64computer.workers.dev", { 
+                  method: 'POST',
+                  headers: {"type": "GETSISWA"},
+                  body: JSON.stringify({session_id: getCookie("session_id"), nisn: nisn})
+                });
+                let json = await response.json();
+                return JSON.parse(await decryptAES(getCookie("key"), json.ciphertext));
+            }
+
+
 const navInnerHTML = `<!-- Navbar Brand-->
             <a class="navbar-brand ps-3" href="index.html">Tatib - SMKN7</a>
             <!-- Sidebar Toggle-->
@@ -85,7 +96,8 @@ const footerInnerHTML = `<div class="container-fluid px-4">
 
 let account;
 async function start() {
-    document.getElementById('nav').innerHTML = navInnerHTML;
+    let nav = document.getElementById('nav').innerHTML = navInnerHTML;
+    //console.log(nav);
     document.getElementById('layoutSidenav_nav').innerHTML = sideNavInnerHTML;
     document.getElementById('footer').innerHTML = footerInnerHTML;
 
@@ -122,6 +134,7 @@ async function start() {
     const name = document.getElementById('userName');
                     const name2 = document.getElementById('userName2');
                     const name3 = document.getElementById('userName3');
+                    console.log(account);
                     name.innerHTML = account.name;
                     name2.innerHTML = account.name;
                     name3.innerHTML = account.name;
